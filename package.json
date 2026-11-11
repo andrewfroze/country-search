@@ -1,0 +1,60 @@
+{
+  "name": "country-search",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/andrewfroze/country-search#readme",
+  "bugs": {
+    "url": "https://github.com/andrewfroze/country-search/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewfroze/country-search.git"
+  },
+  "author": "Andrei Nikiporchyk",
+  "type": "module",
+  "main": "src/main.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier -check .",
+    "ts-coverage": "typescript-coverage-report",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "css-loader": "^7.1.5",
+    "eslint": "^10.14.0",
+    "eslint-plugin-boundaries": "^7.4.2",
+    "gh-pages": "^6.3.0",
+    "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "jest": "^30.5.2",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "ts-jest": "^29.4.15",
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3",
+    "typescript-coverage-report": "^2.1.2",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.7"
+  },
+  "lint-staged": {
+    "*.{js,ts,cjs}": [
+      "eslint",
+      "prettier --check"
+    ],
+    "*.{md,html,css,json}": [
+      "prettier --check"
+    ]
+  }
+}
