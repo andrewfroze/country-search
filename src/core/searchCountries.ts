@@ -1,7 +1,7 @@
 import { HttpError } from './errors/httpError';
 import { CountryResponse } from './types';
 
-const API_URL = 'https://countries.dev/api/countries/name/';
+const API_URL = 'https://countries.dev/name/';
 const DEFAULT_TIMEOUT = 10_000;
 
 export async function searchCountries(
