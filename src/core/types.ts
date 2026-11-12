@@ -13,12 +13,7 @@ export interface CountryResponse {
   borders: string[];
   capital: string;
   demonym: string;
-  languages: {
-    name: string;
-    iso639_1: string;
-    iso639_2: string;
-    nativeName: string;
-  }[];
+  languages: CountryLanguage[];
   subregion: string;
   timezones: string[];
   alpha2Code: string;
@@ -35,4 +30,16 @@ export interface CountryResponse {
   callingCodes: string[];
   topLevelDomain: string[];
   populationDensity: number;
+}
+
+export type Country = Pick<
+  CountryResponse,
+  'name' | 'flag' | 'capital' | 'region' | 'population' | 'languages'
+>;
+
+export interface CountryLanguage {
+  name: string;
+  iso639_1: string;
+  iso639_2: string;
+  nativeName: string;
 }
