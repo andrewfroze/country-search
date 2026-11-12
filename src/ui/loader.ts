@@ -1,4 +1,4 @@
-import { createElement } from '../elementFactory';
+import { createElement } from './utils/elementFactory';
 
 export function renderLoader(): HTMLElement {
   return createElement(

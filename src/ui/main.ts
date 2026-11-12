@@ -1,15 +1,15 @@
-import { debounce } from './core/debounce';
-import { mapCountryResponse } from './core/mapCountryResponse';
-import { searchCountries } from './core/searchCountries';
-import { createElement } from './elementFactory';
-import { HttpError } from './core/errors/httpError';
+import { debounce } from '../core/debounce';
+import { mapCountryResponse } from '../core/mapCountryResponse';
+import { searchCountries } from '../core/searchCountries';
+import { createElement } from './utils/elementFactory';
+import { HttpError } from '../core/errors/httpError';
 import {
   clearCountryCards,
   fillCountryCards,
   showError,
   showLoader,
   showNoResults,
-} from './ui/searchResults';
+} from './searchResults';
 
 const DEFAULT_DEBOUNCE_DELAY = 1000;
 const DEFAULT_TIMEOUT = 10_000;

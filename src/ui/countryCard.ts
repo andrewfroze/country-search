@@ -1,5 +1,5 @@
 import { type Country } from '../core/types';
-import { createElement } from '../elementFactory';
+import { createElement } from './utils/elementFactory';
 
 export function renderCard(country: Country): HTMLElement {
   const card = createElement('article', {
