@@ -1,9 +1,9 @@
 import { searchCountries } from '../src/core/searchCountries';
-import { Country } from '../src/core/types';
+import { CountryResponse } from '../src/core/types';
 import { createMockResponse } from './createMockResponse';
 
 describe('searchCountries', () => {
-  const mockCountries: Country[] = [
+  const mockCountries: CountryResponse[] = [
     {
       area: 505992,
       cioc: 'ESP',
