@@ -1,4 +1,4 @@
-export interface Country {
+export interface CountryResponse {
   area: number;
   cioc: string;
   flag: string;
