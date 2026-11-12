@@ -31,17 +31,14 @@ describe('searchCountries', () => {
     );
   });
 
-  test('should throw HttpError when response code is 4xx', async () => {
+  test('should return an empty array when response code is 404', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
       status: 404,
       statusText: 'Country not found',
     } as Response);
 
-    await expect(searchCountries('Spain', signal)).rejects.toMatchObject({
-      name: 'HttpError',
-      status: 404,
-    });
+    await expect(searchCountries('UnknownCountry', signal)).resolves.toMatchObject([]);
   });
 
   test('should throw HttpError when response code is 5xx', async () => {
