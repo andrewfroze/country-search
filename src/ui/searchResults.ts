@@ -1,5 +1,5 @@
 import { Country } from '../core/types';
-import { createElement } from '../elementFactory';
+import { createElement } from './utils/elementFactory';
 import { renderCountryCards } from './countryCards';
 import { renderLoader } from './loader';
 
