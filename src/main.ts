@@ -2,33 +2,71 @@ import { debounce } from './core/debounce';
 import { mapCountryResponse } from './core/mapCountryResponse';
 import { searchCountries } from './core/searchCountries';
 import { createElement } from './elementFactory';
-import { renderCountryCards } from './ui/countryCards';
-import { type Country } from './core/types';
+import { HttpError } from './core/errors/httpError';
+import {
+  clearCountryCards,
+  fillCountryCards,
+  showError,
+  showLoader,
+  showNoResults,
+} from './ui/searchResults';
 
 const DEFAULT_DEBOUNCE_DELAY = 1000;
 const DEFAULT_TIMEOUT = 10_000;
-let abortController: AbortController | null = null;
 
-const debouncedSearchCountries = debounce(async (query: string) => {
+let abortController: AbortController | null = null;
+let lastQuery = '';
+let requestId = 0;
+
+async function runSearch(query: string): Promise<void> {
+  const currentRequestId = ++requestId;
+
   abortController?.abort();
 
-  abortController = new AbortController();
+  const controller = new AbortController();
+  abortController = controller;
+
+  showLoader(countryCardsContainer);
 
   try {
-    const response = await searchCountries(query, abortController.signal, DEFAULT_TIMEOUT);
+    const response = await searchCountries(query, controller.signal, DEFAULT_TIMEOUT);
+
+    if (currentRequestId !== requestId) return;
 
     const countries = response.map(mapCountryResponse);
 
-    fillCountryCards(countries);
+    if (countries.length === 0) {
+      showNoResults(countryCardsContainer);
+      return;
+    }
 
-    return countries;
+    fillCountryCards(countryCardsContainer, countries);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       return;
     }
 
-    throw error;
+    if (currentRequestId !== requestId) return;
+
+    if (error instanceof HttpError && error.status === 404) {
+      showNoResults(countryCardsContainer);
+      return;
+    }
+
+    showError(countryCardsContainer, () => {
+      if (lastQuery) {
+        runSearch(lastQuery);
+      }
+    });
+  } finally {
+    if (currentRequestId === requestId) {
+      abortController = null;
+    }
   }
+}
+
+const debouncedSearchCountries = debounce((query: string) => {
+  void runSearch(query);
 }, DEFAULT_DEBOUNCE_DELAY);
 
 const searchInput = createElement('input', {
@@ -37,22 +75,29 @@ const searchInput = createElement('input', {
 });
 
 searchInput.addEventListener('input', () => {
-  if (searchInput.value === '') {
-    clearCountryCards();
+  requestId += 1;
+  abortController?.abort();
+  abortController = null;
+
+  lastQuery = searchInput.value.trim();
+
+  if (!lastQuery) {
+    clearCountryCards(countryCardsContainer);
     return;
   }
 
   debouncedSearchCountries(searchInput.value);
 });
 
-const countryCardsContainer = createElement('section', { className: 'country-cards' });
+const countryCardsContainer = createElement('section', { className: 'search-result' });
 
-function fillCountryCards(countries: Country[]) {
-  countryCardsContainer.replaceChildren(...renderCountryCards(countries));
-}
-
-function clearCountryCards() {
-  countryCardsContainer.replaceChildren();
-}
-
-document.body.append(searchInput, countryCardsContainer);
+document.body.append(
+  createElement('header', {}, [
+    createElement('h1', {
+      className: 'title',
+      textContent: 'Country search',
+    }),
+  ]),
+  createElement('main', {}, [searchInput, countryCardsContainer]),
+  createElement('footer', {}),
+);
