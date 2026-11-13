@@ -79,4 +79,18 @@ describe('debounce', () => {
     expect(mockFn).toHaveBeenCalledTimes(1);
     expect(mockFn).toHaveBeenCalledWith('spain');
   });
+
+  test('should cancel pending invocation', () => {
+    const mockFn = jest.fn();
+    const debounced = debounce(mockFn, 300);
+
+    debounced();
+
+    jest.advanceTimersByTime(200);
+    debounced.cancel();
+
+    jest.advanceTimersByTime(300);
+
+    expect(mockFn).not.toHaveBeenCalled();
+  });
 });
