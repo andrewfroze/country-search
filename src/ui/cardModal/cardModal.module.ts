@@ -1,10 +1,11 @@
-import { createElement } from './utils/elementFactory';
-
-const ANIMATION_DURATION = 500;
-const FLIP_DURATION = 700;
-
-const ANIMATION_EASING = 'linear';
-const FLIP_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+import { createElement } from '../utils/elementFactory';
+import {
+  ANIMATION_DURATION,
+  ANIMATION_EASING,
+  animateFlip,
+  animateHeight,
+  animateOpacity,
+} from './cardModalAnimations.module';
 
 const OVERLAY_DURATION = 500;
 const MODAL_VERTICAL_MARGIN = 48;
@@ -84,35 +85,7 @@ export async function openCardModal(card: HTMLElement, details: HTMLElement): Pr
   const dy = originalRect.top + originalRect.height / 2 - (modalRect.top + modalRect.height / 2);
 
   try {
-    const moveAnimation = card.animate(
-      [
-        {
-          transform: `translate(${dx}px, ${dy}px)`,
-          width: `${originalRect.width}px`,
-          height: `${originalRect.height}px`,
-        },
-        {
-          transform: 'translate(0, 0)',
-          width: `${modalRect.width}px`,
-          height: `${modalRect.height}px`,
-        },
-      ],
-      {
-        duration: ANIMATION_DURATION,
-        easing: ANIMATION_EASING,
-        fill: 'forwards',
-      },
-    );
-
-    card.classList.add('is-flipped');
-
-    await Promise.all([
-      moveAnimation.finished,
-      animateFlip(inner, 0, 180),
-      animateOpacity(overlay, 0, 1, OVERLAY_DURATION),
-    ]);
-
-    moveAnimation.cancel();
+    await animateCardOpening(card, inner, overlay, dx, dy, originalRect, modalRect);
 
     await expandCardIfNeeded(card, details, modalHeight);
   } finally {
@@ -129,6 +102,8 @@ export async function closeCardModal(): Promise<void> {
 
   const card = activeCard;
   const details = activeDetails;
+  const currentPlaceholder = placeholder;
+  const currentParent = originalParent;
   const currentOverlay = overlay;
 
   const inner = card.querySelector<HTMLElement>('.country-card__inner');
@@ -139,56 +114,10 @@ export async function closeCardModal(): Promise<void> {
   }
 
   try {
-    const currentHeight = card.getBoundingClientRect().height;
+    await animateCardClosing(card, inner, currentPlaceholder, currentOverlay);
 
-    if (card.classList.contains('is-expanded')) {
-      await animateHeight(card, currentHeight, modalHeight);
-
-      card.classList.remove('is-expanded');
-      card.style.removeProperty('height');
-
-      void card.offsetHeight;
-    }
-
-    const currentRect = card.getBoundingClientRect();
-    const targetRect = placeholder.getBoundingClientRect();
-
-    const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
-
-    const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
-
-    const moveAnimation = card.animate(
-      [
-        {
-          transform: 'translate(0, 0)',
-          width: `${currentRect.width}px`,
-          height: `${currentRect.height}px`,
-        },
-        {
-          transform: `translate(${dx}px, ${dy}px)`,
-          width: `${targetRect.width}px`,
-          height: `${targetRect.height}px`,
-        },
-      ],
-      {
-        duration: ANIMATION_DURATION,
-        easing: ANIMATION_EASING,
-        fill: 'forwards',
-      },
-    );
-
-    card.classList.remove('is-flipped');
-
-    await Promise.all([
-      moveAnimation.finished,
-      animateFlip(inner, 180, 0),
-      animateOpacity(currentOverlay, 1, 0, OVERLAY_DURATION),
-    ]);
-
-    moveAnimation.cancel();
-
-    originalParent.insertBefore(card, placeholder);
-    placeholder.remove();
+    currentParent.insertBefore(card, currentPlaceholder);
+    currentPlaceholder.remove();
 
     card.classList.remove('is-modal');
 
@@ -206,6 +135,101 @@ export async function closeCardModal(): Promise<void> {
     unlockPageScroll();
     resetModalState();
   }
+}
+
+async function animateCardOpening(
+  card: HTMLElement,
+  inner: HTMLElement,
+  currentOverlay: HTMLElement,
+  dx: number,
+  dy: number,
+  originalRect: DOMRect,
+  modalRect: DOMRect,
+): Promise<void> {
+  const moveAnimation = card.animate(
+    [
+      {
+        transform: `translate(${dx}px, ${dy}px)`,
+        width: `${originalRect.width}px`,
+        height: `${originalRect.height}px`,
+      },
+      {
+        transform: 'translate(0, 0)',
+        width: `${modalRect.width}px`,
+        height: `${modalRect.height}px`,
+      },
+    ],
+    {
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+      fill: 'forwards',
+    },
+  );
+
+  card.classList.add('is-flipped');
+
+  await Promise.all([
+    moveAnimation.finished,
+    animateFlip(inner, 0, 180),
+    animateOpacity(currentOverlay, 0, 1, OVERLAY_DURATION),
+  ]);
+
+  moveAnimation.cancel();
+}
+
+async function animateCardClosing(
+  card: HTMLElement,
+  inner: HTMLElement,
+  currentPlaceholder: HTMLElement,
+  currentOverlay: HTMLElement,
+): Promise<void> {
+  const currentHeight = card.getBoundingClientRect().height;
+
+  if (card.classList.contains('is-expanded')) {
+    await animateHeight(card, currentHeight, modalHeight);
+
+    card.classList.remove('is-expanded');
+    card.style.removeProperty('height');
+
+    void card.offsetHeight;
+  }
+
+  const currentRect = card.getBoundingClientRect();
+  const targetRect = currentPlaceholder.getBoundingClientRect();
+
+  const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
+
+  const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
+
+  const moveAnimation = card.animate(
+    [
+      {
+        transform: 'translate(0, 0)',
+        width: `${currentRect.width}px`,
+        height: `${currentRect.height}px`,
+      },
+      {
+        transform: `translate(${dx}px, ${dy}px)`,
+        width: `${targetRect.width}px`,
+        height: `${targetRect.height}px`,
+      },
+    ],
+    {
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+      fill: 'forwards',
+    },
+  );
+
+  card.classList.remove('is-flipped');
+
+  await Promise.all([
+    moveAnimation.finished,
+    animateFlip(inner, 180, 0),
+    animateOpacity(currentOverlay, 1, 0, OVERLAY_DURATION),
+  ]);
+
+  moveAnimation.cancel();
 }
 
 async function expandCardIfNeeded(
@@ -230,54 +254,6 @@ async function expandCardIfNeeded(
   card.classList.add('is-expanded');
 
   await animateHeight(card, initialHeight, targetHeight);
-}
-
-function animateHeight(element: HTMLElement, from: number, to: number): Promise<void> {
-  const animation = element.animate([{ height: `${from}px` }, { height: `${to}px` }], {
-    duration: ANIMATION_DURATION,
-    easing: ANIMATION_EASING,
-    fill: 'forwards',
-  });
-
-  return animation.finished.then(() => {
-    element.style.height = `${to}px`;
-    animation.cancel();
-  });
-}
-
-function animateFlip(inner: HTMLElement, from: number, to: number): Promise<void> {
-  const animation = inner.animate(
-    [{ transform: `rotateY(${from}deg)` }, { transform: `rotateY(${to}deg)` }],
-    {
-      duration: FLIP_DURATION,
-      easing: FLIP_EASING,
-      fill: 'forwards',
-    },
-  );
-
-  return animation.finished.then(() => {
-    animation.cancel();
-  });
-}
-
-function animateOpacity(
-  element: HTMLElement,
-  from: number,
-  to: number,
-  duration: number,
-): Promise<void> {
-  element.style.opacity = String(from);
-
-  const animation = element.animate([{ opacity: from }, { opacity: to }], {
-    duration,
-    easing: ANIMATION_EASING,
-    fill: 'forwards',
-  });
-
-  return animation.finished.then(() => {
-    element.style.opacity = String(to);
-    animation.cancel();
-  });
 }
 
 function resetModalState(): void {
