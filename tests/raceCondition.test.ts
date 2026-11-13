@@ -1,37 +1,50 @@
-import { searchCountries } from '../src/core/searchCountries';
-import { createMockResponse } from './createMockResponse';
-import { mockCountries, mockCountriesDto } from './mockCountries';
+import { createSearchController } from '../src/core/searchController';
+import type { Country } from '../src/core/types';
+import { mockCountriesDto } from './mockCountries';
 
-test('should handle race condition when newer request resolves first', async () => {
-  const firstController = new AbortController();
-  const secondController = new AbortController();
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
 
-  const fetchMock = jest.spyOn(global, 'fetch');
-
-  fetchMock
-    .mockImplementationOnce(
-      (_url, init) =>
-        new Promise<Response>((_resolve, reject) => {
-          const signal = init?.signal;
-
-          if (!signal) return;
-
-          signal.addEventListener('abort', () => reject(signal.reason), { once: true });
-        }),
-    )
-    .mockResolvedValueOnce(createMockResponse(mockCountries, 200));
-
-  const firstRequest = searchCountries('Spa', firstController.signal);
-  const secondRequest = searchCountries('Spain', secondController.signal);
-
-  firstController.abort();
-
-  const secondResult = await secondRequest;
-
-  await expect(firstRequest).rejects.toMatchObject({
-    name: 'AbortError',
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
   });
 
-  expect(secondResult).toEqual(mockCountriesDto);
-  expect(fetchMock).toHaveBeenCalledTimes(2);
+  return { promise, resolve };
+}
+
+test('should ignore outdated response when newer request resolves first', async () => {
+  const firstResponse = createDeferred<Country[]>();
+  const secondResponse = createDeferred<Country[]>();
+
+  const searchMock = jest.fn((query: string) => {
+    return query === 'Spa' ? firstResponse.promise : secondResponse.promise;
+  });
+
+  const onSuccess = jest.fn();
+  const onLoading = jest.fn();
+  const onError = jest.fn();
+
+  const controller = createSearchController({
+    search: searchMock,
+    onLoading,
+    onSuccess,
+    onError,
+  });
+
+  const firstRequest = controller.run('Spa');
+
+  const secondRequest = controller.run('Spain');
+
+  secondResponse.resolve(mockCountriesDto);
+  await secondRequest;
+
+  firstResponse.resolve([]);
+
+  await firstRequest;
+
+  expect(onSuccess).toHaveBeenCalledTimes(1);
+  expect(onSuccess).toHaveBeenCalledWith(mockCountriesDto);
+
+  expect(onError).not.toHaveBeenCalled();
+  expect(onLoading).toHaveBeenCalledTimes(2);
 });
