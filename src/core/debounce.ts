@@ -10,6 +10,7 @@ export function debounce<Args extends unknown[], Return>(
       timeoutId = null;
     }
     timeoutId = setTimeout(() => {
+      timeoutId = null;
       fn(...args);
     }, delay);
   };
