@@ -1,7 +1,6 @@
 import { debounce } from '../core/debounce';
 import { searchCountries } from '../core/searchCountries';
 import { createElement } from './utils/elementFactory';
-import { HttpError } from '../core/errors/httpError';
 import {
   clearCountryCards,
   fillCountryCards,
@@ -48,11 +47,6 @@ async function runSearch(query: string): Promise<void> {
     }
 
     if (currentRequestId !== requestId) return;
-
-    if (error instanceof HttpError && error.status === 404) {
-      showNoResults(countryCardsContainer);
-      return;
-    }
 
     showError(countryCardsContainer, () => {
       if (lastQuery) {

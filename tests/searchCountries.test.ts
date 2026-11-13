@@ -38,10 +38,7 @@ describe('searchCountries', () => {
       statusText: 'Country not found',
     } as Response);
 
-    await expect(searchCountries('Spain', signal)).rejects.toMatchObject({
-      name: 'HttpError',
-      status: 404,
-    });
+    await expect(searchCountries('Spain', signal)).resolves.toMatchObject([]);
   });
 
   test('should throw HttpError when response code is 5xx', async () => {
