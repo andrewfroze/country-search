@@ -1,6 +1,6 @@
 import { searchCountries } from '../src/core/searchCountries';
 import { createMockResponse } from './createMockResponse';
-import { mockCountries } from './mockCountries';
+import { mockCountries, mockCountriesDto } from './mockCountries';
 
 describe('searchCountries', () => {
   const signal = new AbortController().signal;
@@ -14,7 +14,7 @@ describe('searchCountries', () => {
 
     const result = await searchCountries('Spain', signal);
 
-    expect(result).toEqual(mockCountries);
+    expect(result).toEqual(mockCountriesDto);
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
