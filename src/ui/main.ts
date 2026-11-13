@@ -1,5 +1,4 @@
 import { debounce } from '../core/debounce';
-import { mapCountryResponse } from '../core/mapCountryResponse';
 import { searchCountries } from '../core/searchCountries';
 import { createElement } from './utils/elementFactory';
 import { HttpError } from '../core/errors/httpError';
@@ -9,6 +8,7 @@ import {
   showError,
   showLoader,
   showNoResults,
+  showStartMessage,
 } from './searchResults';
 
 const DEFAULT_DEBOUNCE_DELAY = 1000;
@@ -33,14 +33,12 @@ async function runSearch(query: string): Promise<void> {
 
     if (currentRequestId !== requestId) return;
 
-    const countries = response.map(mapCountryResponse);
-
-    if (countries.length === 0) {
+    if (response.length === 0) {
       showNoResults(countryCardsContainer);
       return;
     }
 
-    fillCountryCards(countryCardsContainer, countries);
+    fillCountryCards(countryCardsContainer, response);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       return;
@@ -90,6 +88,8 @@ searchInput.addEventListener('input', () => {
 });
 
 const countryCardsContainer = createElement('section', { className: 'search-result' });
+
+showStartMessage(countryCardsContainer);
 
 document.body.append(
   createElement('header', {}, [

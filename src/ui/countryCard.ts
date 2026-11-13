@@ -1,12 +1,20 @@
-import { type Country } from '../core/types';
+import { CountryResponse, type Country } from '../core/types';
+import { openCardModal } from './cardModal';
+import { renderCountryDetails } from './countryDetails';
 import { createElement } from './utils/elementFactory';
 
-export function renderCard(country: Country): HTMLElement {
+export function renderCard(countryCard: Country, countryDetails: CountryResponse): HTMLElement {
   const card = createElement('article', {
     className: 'country-card',
   });
 
-  card.style.setProperty('--country-flag', `url("${country.flag}")`);
+  const inner = createElement('div', {
+    className: 'country-card__inner',
+  });
+
+  const front = createElement('div', {
+    className: 'country-card__face country-card__front',
+  });
 
   const content = createElement('div', {
     className: 'country-card__content',
@@ -15,73 +23,60 @@ export function renderCard(country: Country): HTMLElement {
   const countryCardTitle = createElement('h2', {
     className: 'country-card__title',
   });
+
   content.append(countryCardTitle);
 
-  if (country.flag) {
+  if (countryCard.flag) {
     countryCardTitle.append(
       createElement('img', {
-        className: 'county-card__title__flag',
-        src: country.flag,
+        className: 'country-card__title__flag',
+        src: countryCard.flag,
       }),
     );
   }
 
-  if (country.name) {
-    countryCardTitle.append(country.name);
+  if (countryCard.name) {
+    countryCardTitle.append(countryCard.name);
   }
 
-  if (country.capital) {
+  if (countryCard.capital) {
     content.append(
       createElement('label', {
         className: 'country-card__capital',
-        textContent: `🏦 ${country.capital}`,
-        title: `Capital`,
+        textContent: `🏦 ${countryCard.capital}`,
+        title: 'Capital',
       }),
     );
   }
 
-  if (country.region) {
+  if (countryCard.region) {
     content.append(
       createElement('label', {
         className: 'country-card__region',
-        textContent: `🌎 ${country.region}`,
+        textContent: `🌎 ${countryCard.region}`,
         title: 'Region',
       }),
     );
   }
 
-  if (country.population) {
+  if (countryCard.population) {
     content.append(
       createElement('label', {
         className: 'country-card__population',
-        textContent: `👥 ${country.population.toLocaleString('en-US')}`,
+        textContent: `👥 ${countryCard.population.toLocaleString('en-US')}`,
         title: 'Population',
       }),
     );
   }
 
-  if (country.languages && country.languages.length > 0) {
-    content.append(
-      createElement(
-        'ul',
-        {
-          className: 'country-card__languages',
-          textContent: '🗣️',
-          title: 'Languages',
-        },
-        [
-          ...country.languages.map((language) =>
-            createElement('li', {
-              className: 'country-card__languages__item',
-              textContent: language.name,
-            }),
-          ),
-        ],
-      ),
-    );
-  }
+  front.append(content);
+  inner.append(front);
+  card.append(inner);
 
-  card.append(content);
+  card.addEventListener('click', () => {
+    const details = renderCountryDetails(countryDetails);
+    void openCardModal(card, details);
+  });
 
   return card;
 }
