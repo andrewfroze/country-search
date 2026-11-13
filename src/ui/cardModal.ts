@@ -7,6 +7,7 @@ const ANIMATION_EASING = 'linear';
 const FLIP_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
 const OVERLAY_DURATION = 500;
+const MODAL_VERTICAL_MARGIN = 48;
 
 const dialog = createElement('dialog', {
   className: 'country-dialog',
@@ -21,6 +22,7 @@ let originalParent: HTMLElement | null = null;
 let originalStyle: string | null = null;
 let overlay: HTMLElement | null = null;
 
+let modalHeight = 0;
 let isAnimating = false;
 
 export async function openCardModal(card: HTMLElement, details: HTMLElement): Promise<void> {
@@ -29,9 +31,7 @@ export async function openCardModal(card: HTMLElement, details: HTMLElement): Pr
   const inner = card.querySelector<HTMLElement>('.country-card__inner');
   const parent = card.parentElement;
 
-  if (!inner || !parent) {
-    return;
-  }
+  if (!inner || !parent) return;
 
   const originalWidth = card.offsetWidth;
   const originalHeight = card.offsetHeight;
@@ -77,6 +77,7 @@ export async function openCardModal(card: HTMLElement, details: HTMLElement): Pr
   card.classList.add('is-modal');
 
   const modalRect = card.getBoundingClientRect();
+  modalHeight = modalRect.height;
 
   const dx = originalRect.left + originalRect.width / 2 - (modalRect.left + modalRect.width / 2);
 
@@ -111,6 +112,8 @@ export async function openCardModal(card: HTMLElement, details: HTMLElement): Pr
     ]);
 
     moveAnimation.cancel();
+
+    await expandCardIfNeeded(card, details, modalHeight);
   } finally {
     isAnimating = false;
   }
@@ -135,6 +138,17 @@ export async function closeCardModal(): Promise<void> {
   }
 
   try {
+    const currentHeight = card.getBoundingClientRect().height;
+
+    if (card.classList.contains('is-expanded')) {
+      await animateHeight(card, currentHeight, modalHeight);
+
+      card.classList.remove('is-expanded');
+      card.style.removeProperty('height');
+
+      void card.offsetHeight;
+    }
+
     const currentRect = card.getBoundingClientRect();
     const targetRect = placeholder.getBoundingClientRect();
 
@@ -192,6 +206,43 @@ export async function closeCardModal(): Promise<void> {
   }
 }
 
+async function expandCardIfNeeded(
+  card: HTMLElement,
+  details: HTMLElement,
+  initialHeight: number,
+): Promise<void> {
+  const columns = details.querySelectorAll<HTMLElement>('.country-card__details__column');
+
+  const overflow = Math.max(
+    0,
+    ...Array.from(columns, (column) => column.scrollHeight - column.clientHeight),
+  );
+
+  if (!overflow) return;
+
+  const maxHeight = window.innerHeight - MODAL_VERTICAL_MARGIN;
+  const targetHeight = Math.min(initialHeight + overflow, maxHeight);
+
+  if (targetHeight <= initialHeight) return;
+
+  card.classList.add('is-expanded');
+
+  await animateHeight(card, initialHeight, targetHeight);
+}
+
+function animateHeight(element: HTMLElement, from: number, to: number): Promise<void> {
+  const animation = element.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+    duration: ANIMATION_DURATION,
+    easing: ANIMATION_EASING,
+    fill: 'forwards',
+  });
+
+  return animation.finished.then(() => {
+    element.style.height = `${to}px`;
+    animation.cancel();
+  });
+}
+
 function animateFlip(inner: HTMLElement, from: number, to: number): Promise<void> {
   const animation = inner.animate(
     [{ transform: `rotateY(${from}deg)` }, { transform: `rotateY(${to}deg)` }],
@@ -234,6 +285,7 @@ function resetModalState(): void {
   originalParent = null;
   originalStyle = null;
   overlay = null;
+  modalHeight = 0;
   isAnimating = false;
 }
 
