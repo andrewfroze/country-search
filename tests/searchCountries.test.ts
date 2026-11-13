@@ -31,7 +31,7 @@ describe('searchCountries', () => {
     );
   });
 
-  test('should throw HttpError when response code is 4xx', async () => {
+  test('should return empty array when response code is 4xx', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
       status: 404,
@@ -39,6 +39,19 @@ describe('searchCountries', () => {
     } as Response);
 
     await expect(searchCountries('Spain', signal)).resolves.toMatchObject([]);
+  });
+
+  test('should throw HttpError when response code is 400', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request',
+    } as Response);
+
+    await expect(searchCountries('Spain', signal)).rejects.toMatchObject({
+      name: 'HttpError',
+      status: 400,
+    });
   });
 
   test('should throw HttpError when response code is 5xx', async () => {

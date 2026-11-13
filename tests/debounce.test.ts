@@ -16,17 +16,6 @@ describe('debounce', () => {
 
     debounced();
     expect(mockFn).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(300);
-    expect(mockFn).toHaveBeenCalledTimes(1);
-  });
-
-  test('does not call the function immediately', () => {
-    const mockFn = jest.fn();
-    const debounced = debounce(mockFn, 300);
-
-    debounced();
-    expect(mockFn).not.toHaveBeenCalled();
   });
 
   test('call the function after delay', () => {
@@ -67,7 +56,7 @@ describe('debounce', () => {
     expect(mockFn).toHaveBeenCalledTimes(1);
   });
 
-  test('callse function with last arguments', () => {
+  test('calls function with last arguments', () => {
     const mockFn = jest.fn();
     const debounced = debounce(mockFn, 300);
 
