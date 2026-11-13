@@ -25,7 +25,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier -check .",
+    "format:check": "prettier --check .",
     "ts-coverage": "typescript-coverage-report",
     "prepare": "husky"
   },

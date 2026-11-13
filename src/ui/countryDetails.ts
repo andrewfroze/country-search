@@ -165,7 +165,7 @@ export function renderCountryDetails(country: Country): HTMLElement {
           title: 'Currencies',
         },
         country.currencies.map((currency) =>
-          createElement('div', {
+          createElement('li', {
             className: 'country-card__details__currencies__item',
             textContent: currency,
           }),
