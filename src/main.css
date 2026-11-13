@@ -275,27 +275,32 @@ main {
 
 .country-card__details {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(4px, 1.2cqw, 12px);
 
   width: 100%;
   height: 100%;
   min-height: 0;
+
   overflow: hidden;
 }
 
 .country-card__details__close {
   position: absolute;
-  top: 1cqw;
-  right: 1cqw;
+  top: 2cqw;
+  right: 2cqw;
+
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+
+  width: clamp(22px, 5cqw, 32px);
+  height: clamp(22px, 5cqw, 32px);
+
   padding: 0;
+
   border: none;
   border-radius: 50%;
+
   background-color: transparent;
   cursor: pointer;
 
@@ -303,8 +308,10 @@ main {
   &::after {
     content: '';
     position: absolute;
+
     width: 20px;
     height: 1px;
+
     background-color: black;
     border-radius: 1px;
   }
@@ -331,28 +338,28 @@ main {
   display: flex;
   flex: 1;
   align-items: stretch;
-  gap: 12px;
+  gap: clamp(6px, 1.5cqw, 16px);
 
-  height: auto;
   min-height: 0;
   overflow: hidden;
 }
 
 .country-card__details__flag {
   display: block;
+  width: clamp(60px, 25cqw, 300px);
   max-width: 50%;
   max-height: 100%;
   height: fit-content;
-  flex: 0 0 50%;
+  flex: 0 0 auto;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: clamp(4px, 1cqw, 10px);
 }
 
 .country-card__details__column {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(4px, 1cqw, 10px);
 
   width: 0;
   min-width: 0;
@@ -440,9 +447,7 @@ main {
 .country-card.is-modal {
   position: relative;
   z-index: 1;
-}
 
-.country-card.is-modal {
   width: min(
     90vw,
     calc((100dvh - 2 * var(--modal-padding, 24px)) * var(--card-aspect-ratio)),
@@ -459,6 +464,8 @@ main {
   flex: none;
   outline: none;
   box-shadow: none;
+
+  container-type: inline-size;
 }
 
 .country-card.is-modal .country-card__inner {
@@ -490,8 +497,11 @@ main {
   display: flex;
   flex-direction: column;
 
+  min-height: 0;
+
   overflow: hidden;
-  padding: 2rem;
+
+  padding: clamp(8px, 3cqw, 32px);
 }
 
 .country-card-placeholder {
@@ -533,10 +543,6 @@ main {
   }
 }
 
-.start-message {
-  text-align: center;
-}
-
 .error-container {
   display: flex;
   flex-direction: column;
@@ -572,14 +578,14 @@ main {
     --modal-padding: 16px;
   }
 
+  .country-card {
+    perspective: 400px;
+  }
+
   .country-card.is-modal {
     width: min(90vw, calc((100dvh - 2 * var(--modal-padding)) * var(--card-aspect-ratio)));
 
     border-radius: 16px;
-  }
-
-  .country-card.is-modal .country-card__back {
-    padding: 1.25rem;
   }
 }
 
