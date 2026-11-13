@@ -83,17 +83,18 @@ export async function openCardModal(card: HTMLElement, details: HTMLElement): Pr
 
   const dy = originalRect.top + originalRect.height / 2 - (modalRect.top + modalRect.height / 2);
 
-  const scaleX = originalRect.width / modalRect.width;
-  const scaleY = originalRect.height / modalRect.height;
-
   try {
     const moveAnimation = card.animate(
       [
         {
-          transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`,
+          transform: `translate(${dx}px, ${dy}px)`,
+          width: `${originalRect.width}px`,
+          height: `${originalRect.height}px`,
         },
         {
-          transform: 'translate(0, 0) scale(1, 1)',
+          transform: 'translate(0, 0)',
+          width: `${modalRect.width}px`,
+          height: `${modalRect.height}px`,
         },
       ],
       {
@@ -156,16 +157,17 @@ export async function closeCardModal(): Promise<void> {
 
     const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
 
-    const scaleX = targetRect.width / currentRect.width;
-    const scaleY = targetRect.height / currentRect.height;
-
     const moveAnimation = card.animate(
       [
         {
-          transform: 'translate(0, 0) scale(1, 1)',
+          transform: 'translate(0, 0)',
+          width: `${currentRect.width}px`,
+          height: `${currentRect.height}px`,
         },
         {
-          transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`,
+          transform: `translate(${dx}px, ${dy}px)`,
+          width: `${targetRect.width}px`,
+          height: `${targetRect.height}px`,
         },
       ],
       {
