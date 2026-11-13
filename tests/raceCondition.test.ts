@@ -1,6 +1,6 @@
 import { searchCountries } from '../src/core/searchCountries';
 import { createMockResponse } from './createMockResponse';
-import { mockCountries } from './mockCountries';
+import { mockCountries, mockCountriesDto } from './mockCountries';
 
 test('should handle race condition when newer request resolves first', async () => {
   const firstController = new AbortController();
@@ -32,6 +32,6 @@ test('should handle race condition when newer request resolves first', async () 
     name: 'AbortError',
   });
 
-  expect(secondResult).toEqual(mockCountries);
+  expect(secondResult).toEqual(mockCountriesDto);
   expect(fetchMock).toHaveBeenCalledTimes(2);
 });

@@ -10,9 +10,8 @@ import {
   showNoResults,
   showStartMessage,
 } from './searchResults';
-import { mapCountryResponse } from '../core/mapCountryResponse';
 
-const DEFAULT_DEBOUNCE_DELAY = 1000;
+const DEFAULT_DEBOUNCE_DELAY = 300;
 const DEFAULT_TIMEOUT = 10_000;
 
 let abortController: AbortController | null = null;
@@ -30,9 +29,7 @@ async function runSearch(query: string): Promise<void> {
   showLoader(countryCardsContainer);
 
   try {
-    const countries = (await searchCountries(query, controller.signal, DEFAULT_TIMEOUT)).map(
-      mapCountryResponse,
-    );
+    const countries = await searchCountries(query, controller.signal, DEFAULT_TIMEOUT);
 
     if (currentRequestId !== requestId) return;
 

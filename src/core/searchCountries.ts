@@ -1,5 +1,6 @@
 import { HttpError } from './errors/httpError';
-import { CountryResponse } from './types';
+import { mapCountryResponse } from './mapCountryResponse';
+import { Country, CountryResponse } from './types';
 
 const API_URL = 'https://countries.dev/name/';
 const DEFAULT_TIMEOUT = 10_000;
@@ -8,7 +9,7 @@ export async function searchCountries(
   query: string,
   signal: AbortSignal,
   timeout: number = DEFAULT_TIMEOUT,
-): Promise<CountryResponse[]> {
+): Promise<Country[]> {
   const timeoutSignal = AbortSignal.timeout(timeout);
   const combinedSignal = AbortSignal.any([signal, timeoutSignal]);
 
@@ -24,5 +25,7 @@ export async function searchCountries(
     throw new HttpError(response.status, `Http error: ${response.statusText}`);
   }
 
-  return response.json() as Promise<CountryResponse[]>;
+  return (response.json() as Promise<CountryResponse[]>).then((resolve) =>
+    resolve.map(mapCountryResponse),
+  );
 }
