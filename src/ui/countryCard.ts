@@ -1,9 +1,9 @@
-import { CountryResponse, type Country } from '../core/types';
+import { type Country } from '../core/types';
 import { openCardModal } from './cardModal';
 import { renderCountryDetails } from './countryDetails';
 import { createElement } from './utils/elementFactory';
 
-export function renderCard(countryCard: Country, countryDetails: CountryResponse): HTMLElement {
+export function renderCard(country: Country): HTMLElement {
   const card = createElement('article', {
     className: 'country-card',
   });
@@ -26,44 +26,44 @@ export function renderCard(countryCard: Country, countryDetails: CountryResponse
 
   content.append(countryCardTitle);
 
-  if (countryCard.flag) {
+  if (country.flag) {
     countryCardTitle.append(
       createElement('img', {
         className: 'country-card__title__flag',
-        src: countryCard.flag,
+        src: country.flag,
       }),
     );
   }
 
-  if (countryCard.name) {
-    countryCardTitle.append(countryCard.name);
+  if (country.name) {
+    countryCardTitle.append(country.name);
   }
 
-  if (countryCard.capital) {
+  if (country.capital) {
     content.append(
       createElement('label', {
         className: 'country-card__capital',
-        textContent: `🏦 ${countryCard.capital}`,
+        textContent: `🏦 ${country.capital}`,
         title: 'Capital',
       }),
     );
   }
 
-  if (countryCard.region) {
+  if (country.region) {
     content.append(
       createElement('label', {
         className: 'country-card__region',
-        textContent: `🌎 ${countryCard.region}`,
+        textContent: `🌎 ${country.region}`,
         title: 'Region',
       }),
     );
   }
 
-  if (countryCard.population) {
+  if (country.population) {
     content.append(
       createElement('label', {
         className: 'country-card__population',
-        textContent: `👥 ${countryCard.population.toLocaleString('en-US')}`,
+        textContent: `👥 ${country.population.toLocaleString('en-US')}`,
         title: 'Population',
       }),
     );
@@ -74,7 +74,7 @@ export function renderCard(countryCard: Country, countryDetails: CountryResponse
   card.append(inner);
 
   card.addEventListener('click', () => {
-    const details = renderCountryDetails(countryDetails);
+    const details = renderCountryDetails(country);
     void openCardModal(card, details);
   });
 

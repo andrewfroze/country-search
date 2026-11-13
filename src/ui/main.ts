@@ -10,6 +10,7 @@ import {
   showNoResults,
   showStartMessage,
 } from './searchResults';
+import { mapCountryResponse } from '../core/mapCountryResponse';
 
 const DEFAULT_DEBOUNCE_DELAY = 1000;
 const DEFAULT_TIMEOUT = 10_000;
@@ -29,16 +30,18 @@ async function runSearch(query: string): Promise<void> {
   showLoader(countryCardsContainer);
 
   try {
-    const response = await searchCountries(query, controller.signal, DEFAULT_TIMEOUT);
+    const countries = (await searchCountries(query, controller.signal, DEFAULT_TIMEOUT)).map(
+      mapCountryResponse,
+    );
 
     if (currentRequestId !== requestId) return;
 
-    if (response.length === 0) {
+    if (countries.length === 0) {
       showNoResults(countryCardsContainer);
       return;
     }
 
-    fillCountryCards(countryCardsContainer, response);
+    fillCountryCards(countryCardsContainer, countries);
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       return;

@@ -18,11 +18,7 @@ export interface CountryResponse {
   timezones: string[];
   alpha2Code: string;
   alpha3Code: string;
-  currencies: {
-    code: string;
-    name: string;
-    symbol: string;
-  }[];
+  currencies: Currency[];
   nativeName: string;
   population: number;
   independent: boolean;
@@ -32,14 +28,27 @@ export interface CountryResponse {
   populationDensity: number;
 }
 
-export type Country = Pick<
-  CountryResponse,
-  'name' | 'flag' | 'capital' | 'region' | 'population' | 'languages'
->;
+export interface Country {
+  name: string;
+  flag: string;
+  capital: string;
+  region: string;
+  population: number;
+  area: number;
+  borders: string[];
+  languages: CountryLanguage[];
+  currencies: string[];
+}
 
 export interface CountryLanguage {
   name: string;
   iso639_1: string;
   iso639_2: string;
   nativeName: string;
+}
+
+export interface Currency {
+  code: string;
+  name: string;
+  symbol: string;
 }

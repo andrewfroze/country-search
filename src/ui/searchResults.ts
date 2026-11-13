@@ -1,4 +1,4 @@
-import { CountryResponse } from '../core/types';
+import { Country } from '../core/types';
 import { createElement } from './utils/elementFactory';
 import { renderCountryCards } from './countryCards';
 import { renderLoader } from './loader';
@@ -7,10 +7,7 @@ export function showLoader(countryCardsContainer: HTMLElement): void {
   countryCardsContainer.replaceChildren(renderLoader());
 }
 
-export function fillCountryCards(
-  countryCardsContainer: HTMLElement,
-  countries: CountryResponse[],
-): void {
+export function fillCountryCards(countryCardsContainer: HTMLElement, countries: Country[]): void {
   countryCardsContainer.replaceChildren(...renderCountryCards(countries));
 }
 

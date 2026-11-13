@@ -60,6 +60,9 @@ describe('mapCountryResponse', () => {
           nativeName: 'Español',
         },
       ],
+      area: 505990,
+      borders: ['AND', 'FRA', 'GIB', 'PRT'],
+      currencies: ['Euro'],
     };
 
     expect(mapCountryResponse(mockCountryResponse)).toEqual(expected);
@@ -112,7 +115,17 @@ describe('mapCountryResponse', () => {
     const result = mapCountryResponse(mockCountryResponse);
 
     expect(Object.keys(result).sort()).toEqual(
-      ['name', 'flag', 'capital', 'region', 'population', 'languages'].sort(),
+      [
+        'name',
+        'flag',
+        'capital',
+        'region',
+        'population',
+        'languages',
+        'area',
+        'borders',
+        'currencies',
+      ].sort(),
     );
   });
 
