@@ -2,7 +2,6 @@ import { debounce } from '../core/debounce';
 import { searchCountries } from '../core/searchCountries';
 import { createElement } from './utils/elementFactory';
 import {
-  clearCountryCards,
   fillCountryCards,
   showError,
   showLoader,
@@ -10,7 +9,7 @@ import {
   showStartMessage,
 } from './searchResults';
 
-const DEFAULT_DEBOUNCE_DELAY = 300;
+const DEFAULT_DEBOUNCE_DELAY = 500;
 const DEFAULT_TIMEOUT = 10_000;
 
 let abortController: AbortController | null = null;
@@ -74,7 +73,8 @@ searchInput.addEventListener('input', () => {
   lastQuery = searchInput.value.trim();
 
   if (!lastQuery) {
-    clearCountryCards(countryCardsContainer);
+    debouncedSearchCountries.cancel();
+    showStartMessage(countryCardsContainer);
     return;
   }
 

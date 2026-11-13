@@ -52,7 +52,3 @@ export function showError(countryCardsContainer: HTMLElement, runSearch: () => v
     ),
   );
 }
-
-export function clearCountryCards(countryCardsContainer: HTMLElement): void {
-  countryCardsContainer.replaceChildren();
-}
