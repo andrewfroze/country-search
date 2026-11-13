@@ -1,4 +1,4 @@
-import { Country } from '../core/types';
+import { CountryResponse } from '../core/types';
 import { createElement } from './utils/elementFactory';
 import { renderCountryCards } from './countryCards';
 import { renderLoader } from './loader';
@@ -7,8 +7,20 @@ export function showLoader(countryCardsContainer: HTMLElement): void {
   countryCardsContainer.replaceChildren(renderLoader());
 }
 
-export function fillCountryCards(countryCardsContainer: HTMLElement, countries: Country[]): void {
+export function fillCountryCards(
+  countryCardsContainer: HTMLElement,
+  countries: CountryResponse[],
+): void {
   countryCardsContainer.replaceChildren(...renderCountryCards(countries));
+}
+
+export function showStartMessage(countryCardsContainer: HTMLElement): void {
+  countryCardsContainer.replaceChildren(
+    createElement('b', {
+      className: 'start-message',
+      textContent: "Let's find something interesting!",
+    }),
+  );
 }
 
 export function showNoResults(countryCardsContainer: HTMLElement): void {
