@@ -1,7 +1,8 @@
+
 import { debounce } from '../core/debounce';
 import { searchCountries } from '../core/searchCountries';
+import { createSearchController } from '../core/searchController';
 import { createElement } from './utils/elementFactory';
-import { HttpError } from '../core/errors/httpError';
 import {
   fillCountryCards,
   showError,
@@ -11,59 +12,40 @@ import {
 } from './searchResults';
 
 const DEFAULT_DEBOUNCE_DELAY = 500;
-const DEFAULT_TIMEOUT = 10_000;
 
-let abortController: AbortController | null = null;
 let lastQuery = '';
-let requestId = 0;
 
-async function runSearch(query: string): Promise<void> {
-  const currentRequestId = ++requestId;
+const countryCardsContainer = createElement('section', {
+  className: 'search-result',
+});
 
-  abortController?.abort();
+const searchController = createSearchController({
+  search: searchCountries,
 
-  const controller = new AbortController();
-  abortController = controller;
+  onLoading: () => {
+    showLoader(countryCardsContainer);
+  },
 
-  showLoader(countryCardsContainer);
-
-  try {
-    const countries = await searchCountries(query, controller.signal, DEFAULT_TIMEOUT);
-
-    if (currentRequestId !== requestId) return;
-
+  onSuccess: (countries) => {
     if (countries.length === 0) {
       showNoResults(countryCardsContainer);
       return;
     }
 
     fillCountryCards(countryCardsContainer, countries);
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return;
-    }
+  },
 
-    if (currentRequestId !== requestId) return;
-
-    if (error instanceof HttpError && error.status === 404) {
-      showNoResults(countryCardsContainer);
-      return;
-    }
-
+  onError: () => {
     showError(countryCardsContainer, () => {
       if (lastQuery) {
-        runSearch(lastQuery);
+        void searchController.run(lastQuery);
       }
     });
-  } finally {
-    if (currentRequestId === requestId) {
-      abortController = null;
-    }
-  }
-}
+  },
+});
 
 const debouncedSearchCountries = debounce((query: string) => {
-  void runSearch(query);
+  void searchController.run(query);
 }, DEFAULT_DEBOUNCE_DELAY);
 
 const searchInput = createElement('input', {
@@ -72,9 +54,7 @@ const searchInput = createElement('input', {
 });
 
 searchInput.addEventListener('input', () => {
-  requestId += 1;
-  abortController?.abort();
-  abortController = null;
+  searchController.cancel();
 
   lastQuery = searchInput.value.trim();
 
@@ -84,10 +64,8 @@ searchInput.addEventListener('input', () => {
     return;
   }
 
-  debouncedSearchCountries(searchInput.value);
+  debouncedSearchCountries(lastQuery);
 });
-
-const countryCardsContainer = createElement('section', { className: 'search-result' });
 
 showStartMessage(countryCardsContainer);
 
