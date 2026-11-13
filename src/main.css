@@ -259,7 +259,6 @@ main {
 .country-card__population {
   display: flex;
   align-items: center;
-  gap: 7px;
 
   color: var(--color-text-secondary);
 
@@ -602,13 +601,4 @@ main {
   .country-card {
     transition-duration: 0.01ms;
   }
-}
-
-.country-card.is-modal,
-.country-card.is-modal .country-card__inner,
-.country-card.is-modal .country-card__face {
-  transform-style: preserve-3d;
-  -webkit-font-smoothing: antialiased;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
