@@ -48,7 +48,7 @@ describe('mapCountryResponse', () => {
   test('should map all required fields from API response', () => {
     const expected: Country = {
       name: 'Spain',
-      flag: '🇪🇸',
+      flag: 'https://flagcdn.com/es.svg',
       capital: 'Madrid',
       region: 'Europe',
       population: 47351567,
