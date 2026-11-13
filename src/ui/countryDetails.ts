@@ -1,8 +1,8 @@
-import { CountryResponse } from '../core/types';
+import { Country } from '../core/types';
 import { closeCardModal } from './cardModal';
 import { createElement } from './utils/elementFactory';
 
-export function renderCountryDetails(country: CountryResponse): HTMLElement {
+export function renderCountryDetails(country: Country): HTMLElement {
   const detailsContainer = createElement('div', {
     className: 'country-card__face country-card__back country-card__details',
   });
@@ -34,11 +34,11 @@ export function renderCountryDetails(country: CountryResponse): HTMLElement {
     detailsContent,
   );
 
-  if (country.flags) {
+  if (country.flag) {
     detailsContent.append(
       createElement('img', {
         className: 'country-card__details__flag',
-        src: country.flags.svg,
+        src: country.flag,
       }),
     );
   }
@@ -167,7 +167,7 @@ export function renderCountryDetails(country: CountryResponse): HTMLElement {
         country.currencies.map((currency) =>
           createElement('div', {
             className: 'country-card__details__currencies__item',
-            textContent: currency.name,
+            textContent: currency,
           }),
         ),
       ),
