@@ -17,6 +17,10 @@ export async function searchCountries(
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
+
     throw new HttpError(response.status, `Http error: ${response.statusText}`);
   }
 
