@@ -104,12 +104,12 @@ const debouncedSearchCountries = debounce((query: string) => {
 
 searchInput.addEventListener('input', () => {
   searchController.cancel();
+  showStartMessage(countryCardsContainer);
 
   lastQuery = searchInput.value.trim();
 
   if (!lastQuery) {
     debouncedSearchCountries.cancel();
-    showStartMessage(countryCardsContainer);
     return;
   }
 
