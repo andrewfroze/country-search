@@ -1,7 +1,10 @@
 import { debounce } from '../core/debounce';
 import { searchCountries } from '../core/searchCountries';
+import { createCountrySearchService } from '../core/countrySearchService';
 import { createSearchController } from '../core/searchController';
+import { addSearchHistory, clearSearchHistory, getSearchHistory } from '../core/searchHistory';
 import { createElement } from './utils/elementFactory';
+import { renderSearchHistory } from './searchHistory';
 import {
   fillCountryCards,
   showError,
@@ -18,8 +21,22 @@ const countryCardsContainer = createElement('section', {
   className: 'search-result',
 });
 
+const searchInput = createElement('input', {
+  className: 'search-input',
+  placeholder: 'Type country name',
+  type: 'search',
+});
+
+const historyContainer = createElement('nav', {
+  className: 'search-history',
+});
+
+historyContainer.setAttribute('aria-label', 'Search history');
+
+const countrySearchService = createCountrySearchService(searchCountries);
+
 const searchController = createSearchController({
-  search: searchCountries,
+  search: countrySearchService.search,
 
   onLoading: () => {
     showLoader(countryCardsContainer);
@@ -43,14 +60,47 @@ const searchController = createSearchController({
   },
 });
 
-const debouncedSearchCountries = debounce((query: string) => {
-  void searchController.run(query);
-}, DEFAULT_DEBOUNCE_DELAY);
+function updateSearchHistory(): void {
+  const history = getSearchHistory();
 
-const searchInput = createElement('input', {
-  className: 'search-input',
-  placeholder: 'Type country name',
-});
+  historyContainer.replaceChildren();
+
+  if (history.length === 0) {
+    return;
+  }
+
+  historyContainer.append(
+    renderSearchHistory(
+      history,
+      (query) => {
+        debouncedSearchCountries.cancel();
+        searchController.cancel();
+
+        searchInput.value = query;
+        lastQuery = query;
+
+        runSearch(query);
+      },
+      () => {
+        clearSearchHistory();
+        updateSearchHistory();
+      },
+    ),
+  );
+}
+
+function runSearch(query: string): void {
+  lastQuery = query;
+
+  addSearchHistory(query);
+  updateSearchHistory();
+
+  void searchController.run(query);
+}
+
+const debouncedSearchCountries = debounce((query: string) => {
+  runSearch(query);
+}, DEFAULT_DEBOUNCE_DELAY);
 
 searchInput.addEventListener('input', () => {
   searchController.cancel();
@@ -67,6 +117,7 @@ searchInput.addEventListener('input', () => {
 });
 
 showStartMessage(countryCardsContainer);
+updateSearchHistory();
 
 document.body.append(
   createElement('header', {}, [
@@ -75,6 +126,6 @@ document.body.append(
       textContent: 'Country search',
     }),
   ]),
-  createElement('main', {}, [searchInput, countryCardsContainer]),
+  createElement('main', {}, [searchInput, historyContainer, countryCardsContainer]),
   createElement('footer', {}),
 );
